@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyberpunk Blackwall HD Wallpaper</title>
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <style>
+        :root {
+            --neon-primary: #00ffcc;
+            --neon-secondary: #ff007f;
+            --neon-yellow: #fcee0a;
+            --blackwall-red: #ff003c;
+            --bg-glass: rgba(5, 12, 24, 0.85);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body, html {
+            width: 100%; height: 100%; overflow: hidden;
+            background: transparent; font-family: 'Consolas', monospace;
+            user-select: none; pointer-events: none;
+        }
+
+        .glitch-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 60, 0.03), rgba(0, 0, 0, 0.01), rgba(255, 0, 60, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none; z-index: 10; opacity: 0.6;
+        }
+
+        canvas { display: block; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; }
+        
+        .cyber-center-deck {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; gap: 14px;
+            z-index: 5; width: 400px; pointer-events: auto;
+        }
+
+        .hud-box {
+            width: 100%; color: var(--neon-primary); background: var(--bg-glass);
+            border: 1px solid rgba(255, 0, 60, 0.5); border-left: 5px solid var(--blackwall-red);
+            padding: 14px 18px; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.2); backdrop-filter: blur(4px);
+            position: relative;
+        }
+        .hud-box::after {
+            content: "BLACKWALL_HD_ENGINE"; position: absolute; bottom: 2px; right: 8px;
+            font-size: 7px; color: rgba(255, 0, 60, 0.6); letter-spacing: 1px;
+        }
+
+        .hud-header { font-size: 10px; letter-spacing: 2px; color: var(--blackwall-red); margin-bottom: 6px; text-transform: uppercase; font-weight: bold; }
+        .hud-time { font-size: 30px; font-weight: bold; letter-spacing: 3px; color: #fff; text-shadow: 0 0 10px var(--blackwall-red); text-align: center; }
+        .hud-date { font-size: 11px; letter-spacing: 2px; color: var(--neon-secondary); text-shadow: 0 0 8px var(--neon-secondary); text-align: center; margin-top: 4px; }
+
+        .sys-meter { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; font-size: 11px; font-weight: bold; }
+        .sys-meter:last-child { margin-bottom: 0; }
+        .sys-label { width: 35px; color: var(--blackwall-red); }
+        .bar-bg { flex-grow: 1; height: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 0, 60, 0.3); overflow: hidden; }
+        .bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--blackwall-red), var(--neon-secondary)); box-shadow: 0 0 8px var(--neon-secondary); transition: width 0.4s ease; }
+
+        .media-content { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+        .album-icon {
+            width: 44px; height: 44px; border: 1px solid var(--blackwall-red);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; color: var(--blackwall-red);
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.4); background: rgba(255, 0, 60, 0.1);
+            flex-shrink: 0;
+        }
+
+        .track-info { overflow: hidden; }
+        #track-title { font-size: 11px; font-weight: bold; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 8px var(--blackwall-red); }
+        #track-artist { font-size: 10px; color: var(--neon-secondary); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 0 6px var(--blackwall-red); }
+    </style>
+</head>
+<body>
+    <div class="glitch-overlay" id="glitch-layer"></div>
+    <canvas id="voxel-canvas"></canvas>
+    
+    <div class="cyber-center-deck">
+        <div class="hud-box">
+            <div class="hud-header">// ADMIN CONNECTED: WILL</div>
+            <div id="hud-time" class="hud-time">00:00:00</div>
+            <div id="hud-date" class="hud-date">NIGHT_CITY // ONLINE</div>
+        </div>
+
+        <div class="hud-box">
+            <div class="hud-header">// SYSTEM_METRICS</div>
+            <div class="sys-meter">
+                <span class="sys-label">CPU</span>
+                <div class="bar-bg"><div id="cpu-bar" class="bar-fill"></div></div>
+                <span id="cpu-val">0%</span>
+            </div>
+            <div class="sys-meter">
+                <span class="sys-label">RAM</span>
+                <div class="bar-bg"><div id="ram-bar" class="bar-fill"></div></div>
+                <span id="ram-val">0%</span>
+            </div>
+        </div>
+
+        <div class="hud-box">
+            <div class="hud-header">// AUDIO_FEED_INPUT</div>
+            <div class="media-content">
+                <div class="album-icon">♫</div>
+                <div class="track-info">
+                    <div id="track-title">AGUARDANDO MÍDIA...</div>
+                    <div id="track-artist">SYSTEM_STANDBY</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bridge;
+        let mouseX = 0, mouseY = 0;
+        let targetMouseX = 0, targetMouseY = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            targetMouseX = (e.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+            targetMouseY = (e.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        });
+
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('hud-time').innerText = `${hours}:${minutes}:${seconds}`;
+            
+            const dias = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+            const meses = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+            document.getElementById('hud-date').innerText = `${dias[now.getDay()]}, ${String(now.getDate()).padStart(2, '0')} ${meses[now.getMonth()]} ${now.getFullYear()}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let imagePaths = [];
+        let currentImageIndex = 0;
+
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof QWebChannel !== "undefined") {
+                new QWebChannel(qt.webChannelTransport, function (channel) {
+                    bridge = channel.objects.bridge;
+                    setInterval(updateStats, 1000);
+
+                    if (bridge.getImagesList) {
+                        bridge.getImagesList(function(res) {
+                            try {
+                                imagePaths = JSON.parse(res);
+                                if (imagePaths.length > 0) loadNextImage();
+                            } catch(e) {}
+                        });
+                    }
+                });
+            } else {
+                imagePaths = ['images/joi1.png'];
+                loadNextImage();
+            }
+        });
+
+        function updateStats() {
+            if (bridge) {
+                bridge.getSystemStats(function(response) {
+                    try {
+                        const stats = JSON.parse(response);
+                        document.getElementById('cpu-bar').style.width = Math.round(stats.cpu) + '%';
+                        document.getElementById('cpu-val').innerText = Math.round(stats.cpu) + '%';
+                        document.getElementById('ram-bar').style.width = Math.round(stats.ram) + '%';
+                        document.getElementById('ram-val').innerText = Math.round(stats.ram) + '%';
+                        
+                        if (stats.title && stats.title !== "AGUARDANDO MÍDIA...") {
+                            document.getElementById('track-title').innerText = stats.title;
+                            document.getElementById('track-artist').innerText = stats.artist.toUpperCase();
+                        } else {
+                            document.getElementById('track-title').innerText = "AGUARDANDO MÍDIA...";
+                            document.getElementById('track-artist').innerText = "SYSTEM_STANDBY";
+                        }
+                    } catch(e) {}
+                });
+            }
+        }
+
+        // ==============================================================
+        // MOTOR VOXEL HD DE ALTA DENSIDADE E NITIDEZ
+        // ==============================================================
+        const canvas = document.getElementById('voxel-canvas');
+        const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        let voxels = [];
+        let isImageLoaded = false;
+
+        function loadNextImage() {
+            if (imagePaths.length === 0) return;
+            const img = new Image();
+            img.src = imagePaths[currentImageIndex];
+            img.onload = () => {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Resolução maior para detalhar perfeitamente os traços da imagem
+                const maxDim = 380;
+                let sW = maxDim;
+                let sH = Math.round(maxDim * (img.height / img.width));
+
+                if (sH > maxDim) {
+                    sH = maxDim;
+                    sW = Math.round(maxDim * (img.width / img.height));
+                }
+
+                tempCanvas.width = sW;
+                tempCanvas.height = sH;
+                tempCtx.drawImage(img, 0, 0, sW, sH);
+                const imgData = tempCtx.getImageData(0, 0, sW, sH).data;
+
+                const newVoxels = [];
+                for (let y = 0; y < sH; y++) {
+                    for (let x = 0; x < sW; x++) {
+                        const idx = (y * sW + x) * 4;
+                        const r = imgData[idx];
+                        const g = imgData[idx + 1];
+                        const b = imgData[idx + 2];
+                        const alpha = imgData[idx + 3];
+
+                        let brightness = (r * 0.299 + g * 0.587 + b * 0.114);
+
+                        if (alpha > 10 && brightness > 6) {
+                            newVoxels.push({
+                                gridX: x - sW / 2,
+                                gridY: y - sH / 2,
+                                baseZ: (brightness / 255) * 90,
+                                brightness: brightness,
+                                phase: Math.random() * Math.PI * 2
+                            });
+                        }
+                    }
+                }
+                voxels = newVoxels;
+                isImageLoaded = true;
+            };
+            currentImageIndex = (currentImageIndex + 1) % imagePaths.length;
+        }
+
+        window.forceNextImage = function() {
+            loadNextImage();
+        };
+
+        setInterval(() => {
+            if (imagePaths.length > 1) {
+                loadNextImage();
+            }
+        }, 35000);
+
+        function renderVoxels() {
+            ctx.fillStyle = '#010204';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            mouseX += (targetMouseX - mouseX) * 0.03;
+            mouseY += (targetMouseY - mouseY) * 0.03;
+
+            if (isImageLoaded && voxels.length > 0) {
+                const time = Date.now() * 0.001;
+                
+                const centerX = (canvas.width / 2) + (mouseX * 15);
+                const centerY = (canvas.height / 2) + (mouseY * 15);
+                const focalLength = 850;
+
+                voxels.forEach(v => {
+                    const ambientWave = Math.sin(time * 1.5 + v.phase) * 2.5;
+                    v.currentZ = v.baseZ + ambientWave;
+                });
+
+                voxels.sort((a, b) => a.currentZ - b.currentZ);
+
+                voxels.forEach(v => {
+                    const z3D = 320 - v.currentZ;
+                    if (z3D <= 5) return;
+
+                    const scale = focalLength / z3D;
+                    const projX = centerX + (v.gridX * 2.7) * scale;
+                    const projY = centerY + (v.gridY * 2.7) * scale;
+                    const size = 1.05 * scale;
+
+                    if (projX < -10 || projX > canvas.width + 10 || projY < -10 || projY > canvas.height + 10) return;
+
+                    const starGlow = (Math.sin(time * 0.8 + v.phase) + 1) * 0.5;
+
+                    if (v.brightness > 210 && starGlow > 0.7) {
+                        ctx.fillStyle = `rgba(255, 255, 255, ${starGlow * 0.85})`;
+                    } else {
+                        const redVal = Math.floor(185 + (v.brightness / 255) * 70);
+                        const blueVal = Math.floor((v.brightness / 255) * 85);
+                        const baseAlpha = Math.min(1.0, v.brightness / 105);
+                        ctx.fillStyle = `rgba(${redVal}, 0, ${blueVal + 15}, ${baseAlpha})`;
+                    }
+
+                    ctx.fillRect(projX - size / 2, projY - size / 2, size, size);
+                });
+            }
+
+            requestAnimationFrame(renderVoxels);
+        }
+        renderVoxels();
+    </script>
+</body>
+</html>

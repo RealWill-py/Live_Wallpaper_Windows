@@ -1,0 +1,23 @@
+[
+  {
+    "type": "checkbox",
+    "id": "enableGrid",
+    "value": true,
+    "label": "Ativar Grade Estilo Cyberpunk"
+  },
+  {
+    "type": "color",
+    "id": "neonColor",
+    "value": "#00ffcc",
+    "label": "Cor Principal (Neon)"
+  },
+  {
+    "type": "slider",
+    "id": "particleSpeed",
+    "value": 50,
+    "min": 10,
+    "max": 100,
+    "step": 5,
+    "label": "Velocidade das Partículas"
+  }
+]
