@@ -1,3 +1,5 @@
+<img width="1920" height="1080" alt="{D7874B1C-CEA2-488F-88A7-455250F3DB9A}" src="https://github.com/user-attachments/assets/332ee6a1-063a-4f0b-9437-ecdef4c11532" />
+
 # 🛠️ Blackwall Cyberpunk Voxel Live Wallpaper — Status & Roadmap
 
 Este documento serve como **ponto de restauração e alinhamento de contexto** para o desenvolvimento do Live Wallpaper animado e interativo no estilo **Cyberpunk Blackwall**.
