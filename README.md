@@ -72,7 +72,3 @@ Live wallpaper/
 ├── index.html         # Frontend HTML5 + CSS HUD + Motor Voxel 3D (Canvas JS)
 └── images/            # Diretório de fotos/artes do usuário (.png, .jpg, .webp)
 ```
-
----
-
-*Backup criado com sucesso. Bom descanso e até a próxima sessão de código!*
